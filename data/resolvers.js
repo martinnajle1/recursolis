@@ -1,17 +1,18 @@
-import { Resource, Project } from './connectors';
-
+/*import { Resource, Project } from './connectors';
+/*
 const resolveFunctions = {
   RootQuery: {
     /*project(_, { title }){
       return Project.find({ title });
     },*/
-    fortuneCookie(){
+    /*fortuneCookie(){
       return FortuneCookie.getOne();
     },
     resources: () => {
       return Resource.find({});
     }
-  },/*,
+
+  },
   RootMutation: {
     createAuthor: (root, args) => { return Author.create(args); },
     craetePost: (root, { authorId, tags, title, text }) => {
@@ -30,7 +31,7 @@ const resolveFunctions = {
     resources(project){
       return Project.find({_id: project._id});
     },
-  },*/
-}
+  },
+}*/
 
 export default resolveFunctions;

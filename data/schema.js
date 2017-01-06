@@ -1,4 +1,4 @@
-const typeDefinitions = `
+/*const typeDefinitions = `
 #type Project {
 # _id: Int! # the ! means that every author object _must_ have an id
 # title: String
@@ -6,38 +6,106 @@ const typeDefinitions = `
 # budget: Int
 # resources: [Resource] # the list of Resources by this project
 #}
+ ids? CRUD?
+*/
 
-type Resource {
-  _dni: String!
-  firstName: String
-  lastName: String
+
+import { Resource, Project } from './connectors';
+import {
+    GraphQLObjectType,
+    GraphQLSchema,
+    GraphQLNonNull,
+    GraphQLString,
+    GraphQLList
+} from 'graphql';
+
+var ResourceType = new GraphQLObjectType({
+    name: 'Resource',
+    fields: {
+        _dni: {
+            type: new GraphQLNonNull(GraphQLString)
+        },
+        firstName: {
+            type: GraphQLString
+        },
+        lastName: {
+            type: GraphQLString
+        }
+    }
+});
+
+var queryType = new GraphQLObjectType({
+    name: 'Query',
+    fields: function() {
+        return {
+            resource: {
+                type: ResourceType,
+                args: {
+                    _dni: {
+                        name: 'id',
+                        type: new GraphQLNonNull(GraphQLString)
+                    }
+                },
+                resolve: function(_, args) {
+                    return Resource.findOne({ _dni: args._dni });
+                }
+            },
+            resources: {
+                type: new GraphQLList(ResourceType),
+                resolve: function(_, args) {
+                    return Resource.find({});
+                }
+            }
+        }
+    }
+});
+
+var MutationAdd = {
+    type: ResourceType,
+    description: 'Add a Resource',
+    args: {
+        _dni: {
+            name: 'DNI or any kind of ID',
+            type: new GraphQLNonNull(GraphQLString)
+        },
+        firstName: {
+            name: 'First Name',
+            type: GraphQLString
+        },
+        lastName: {
+            name: 'Last Name',
+            type: GraphQLString
+        }
+    },
+    resolve: (root, args) => {
+        var newResource = new Resource({
+                _dni: args._dni,
+                lastName: args.firstName,
+                firstName: args.lastName
+            })
+
+        return new Promise((resolve, reject) => {
+            Resource.findOneAndUpdate({ _dni: newResource._dni }, {
+                _dni: args._dni,
+                lastName: args.firstName,
+                firstName: args.lastName
+            }, { upsert: true }, function(err) {
+                if (err) reject(err)
+                else resolve(newResource)
+            })
+        })
+    }
 }
 
-# the schema allows the following two queries:
-type RootQuery {
-  resources: [Resource]
-  fortuneCookie: String
-}
+var MutationType = new GraphQLObjectType({
+    name: 'Mutation',
+    fields: {
+        add: MutationAdd
+    }
+});
 
-# this schema allows the following two mutations:
-#type RootMutation {
-#  createAuthor(
-#    firstName: String!
-#    lastName: String!
-#  ): Author
-#  createPost(
-#    tags: [String!]!
-#    title: String!
-#    text: String!
-#    authorId: Int!
-#  ): Post
-#}
 
-# we need to tell the server which types represent the root query
-# and root mutation types. We call them RootQuery and RootMutation by convention.
-schema {
-  query: RootQuery
-}
-`;
-
-export default [typeDefinitions];
+module.exports = new GraphQLSchema({
+    query: queryType,
+    mutation: MutationType
+});
