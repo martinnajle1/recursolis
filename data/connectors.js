@@ -11,7 +11,7 @@ const mongo = Mongoose.connect('mongodb://localhost/recursolis', (err) => {
 mongo.Promise = require('bluebird');
 
 const ResourceSchema = Mongoose.Schema({
-    _dni: String,
+    _dni: { type: String, index: { unique: true } },
     firstName: String,
     lastName: String,
 });
@@ -21,7 +21,7 @@ const ProjectSchema = Mongoose.Schema({
     title: String,
     contractor: String,
     budget: Number,
-    resources: [{type: Mongoose.Schema.Types.ObjectId, ref: 'Resource'}]
+    resources: [{ type: Mongoose.Schema.Types.ObjectId, ref: 'Resource' }]
 });
 
 const Resource = Mongoose.model('resources', ResourceSchema);
