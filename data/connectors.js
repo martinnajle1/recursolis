@@ -50,13 +50,6 @@ Project.create({ title: "The project" })
     })
     .catch((err) => console.log(err));
 
-
-
-
-
-
-
-
 const FortuneCookie = {
     getOne() {
         return rp('http://fortunecookieapi.com/v1/cookie?limit=1')

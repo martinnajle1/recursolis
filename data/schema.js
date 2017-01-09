@@ -1,11 +1,4 @@
-/*const typeDefinitions = `
-#type Project {
-# _id: Int! # the ! means that every author object _must_ have an id
-# title: String
-# contractor: String
-# budget: Int
-# resources: [Resource] # the list of Resources by this project
-#} CRUD?
+/*https://github.com/graphql/graphql-relay-js/
 */
 
 
@@ -25,9 +18,9 @@ var { nodeInterface, nodeField } = nodeDefinitions(
     (globalId) => {
         var { type, id } = fromGlobalId(globalId);
         if (type === 'Resource') {
-            return Resource.find({ _dni: id });
+            return Resource.findOne({_id: id});
         } else if (type === 'Project') {
-            return Project.find({ _id: id });
+            return Project.findOne({ _id: id });
         } else {
             return null;
         }
@@ -105,6 +98,8 @@ var queryType = new GraphQLObjectType({
     name: 'Query',
     fields: function() {
         return {
+            node: nodeField
+,
             resource: {
                 type: ResourceType,
                 args: {
