@@ -1,5 +1,5 @@
 /*https://github.com/graphql/graphql-relay-js/
-*/
+ */
 
 
 import { Resource, Project } from './connectors';
@@ -18,7 +18,10 @@ var { nodeInterface, nodeField } = nodeDefinitions(
     (globalId) => {
         var { type, id } = fromGlobalId(globalId);
         if (type === 'Resource') {
-            return Resource.findOne({_id: id});
+            return new Promise((resolve, reject) => {
+                setTimeout(() => reject('MongoDB timeout when fetching field  (timeout is 500ms)'), 500);
+                Resource.findOne({ _id: id }).then((res) => resolve(res));
+            })
         } else if (type === 'Project') {
             return Project.findOne({ _id: id });
         } else {
@@ -39,7 +42,7 @@ var { nodeInterface, nodeField } = nodeDefinitions(
 var ResourceType = new GraphQLObjectType({
     name: 'Resource',
     fields: () => ({
-    	id: globalIdField('Resource'),
+        id: globalIdField('Resource'),
         _dni: {
             type: new GraphQLNonNull(GraphQLID),
             resolve(resource) {
@@ -98,8 +101,7 @@ var queryType = new GraphQLObjectType({
     name: 'Query',
     fields: function() {
         return {
-            node: nodeField
-,
+            node: nodeField,
             resource: {
                 type: ResourceType,
                 args: {
