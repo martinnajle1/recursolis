@@ -17,28 +17,45 @@ const ResourceSchema = Mongoose.Schema({
 });
 
 const ProjectSchema = Mongoose.Schema({
-    _projectId: Number,
     title: String,
     contractor: String,
     budget: Number,
     resources: [{ type: Mongoose.Schema.Types.ObjectId, ref: 'Resource' }]
 });
 
+
 const Resource = Mongoose.model('resources', ResourceSchema);
 const Project = Mongoose.model('projects', ProjectSchema);
 
 // Relations
 // 
+// 
 casual.seed(123);
-for (var i = 0; i < 10; i++) {
-    Resource.create({
-            _dni: casual.word,
-            firstName: casual.first_name,
-            lastName: casual.last_name
-        })
-        .then((res) => console.log(res))
-        .catch((err) => console.log(err));
-}
+Project.create({ title: "The project" })
+    .then((project) => {
+        for (var i = 0; i < 10; i++) {
+            Resource.create({
+                    _dni: casual.word,
+                    firstName: casual.first_name,
+                    lastName: casual.last_name
+                })
+                .then((res) => {
+                    console.log("Project:", project.resources);
+                    project.resources.push(res);
+                    project.save();
+                    console.log('RES:', res)
+                })
+                .catch((err) => console.log(err));
+        }
+    })
+    .catch((err) => console.log(err));
+
+
+
+
+
+
+
 
 const FortuneCookie = {
     getOne() {
